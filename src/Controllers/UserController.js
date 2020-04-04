@@ -21,6 +21,28 @@ module.exports = {
         
         return res.json(usuario);
     },
+
+    async indexEverythingFromUser(req, res) {
+        const { id } = req.params;
+
+        const usuario = await conn('usuario')
+            .where('id_usuario', id)
+            .select('nome')
+            .first()
+            .then(async () => {
+                const rent = await conn('aluguel')
+                    .where('dono_id', id)
+                    .select('*');
+
+                const tool = await conn('ferramenta')
+                    .where('id_dono', id)
+                    .select('*');
+
+                return {rent, tool}
+            })
+        
+        return res.json({ usuario });
+    },
     
     async create(req, res) { 
         const { name, senha } = req.body;
@@ -35,7 +57,11 @@ module.exports = {
             senha: hash,
         });
 
-        return res.status(204).send();
+        return res.json({ id })
+    },
+
+    async updateName(req, res) {
+        
     },
 
     async delete(req, res) {
@@ -56,20 +82,16 @@ module.exports = {
             .select('senha')
             .first()
             .then(user => {
-            if(user != undefined) {
-                const correct = bcrypt.compareSync(senha, user.senha);
-                if(correct) {
-                    return res.status(202).send();
+                if(user != undefined) {
+                    const correct = bcrypt.compareSync(senha, user.senha);
+                    if(correct) {
+                        return res.status(202).send();
+                    } else {
+                        return res.status(403).send();
+                    }
                 } else {
-                    return res.status(403).send();
+                    return res.status(404).send();
                 }
-            } else {
-                return res.status(401).send();
-            }
-        })
+            });
     },
-
-    async logout(req, res) {
-
-    }
 }

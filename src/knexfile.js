@@ -8,9 +8,6 @@ module.exports = {
       password : '',
       database : 'supera'
     },
-    migrations:{
-      directory: './src/database/migrations'
-    },
     useNullAsDefault: true,
   },
 

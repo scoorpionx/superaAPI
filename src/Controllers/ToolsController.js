@@ -30,6 +30,17 @@ module.exports = {
         
         return res.json(tool);
     },
+
+    async indexTimesRented(req, res) {
+        const { id } = req.params;
+
+        const tool = await conn('ferramenta')
+            .where('id_ferramenta', id)
+            .select('nome', 'vezes_alugada')
+            .first();
+        
+        return res.json(tool);
+    },
     
     async create(req, res) { 
         const { nome, valor_dia } = req.body;
