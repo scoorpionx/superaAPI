@@ -2,6 +2,7 @@ const conn = require('../database/connection');
 const crypto = require('crypto');
 
 module.exports = {
+    
     async indexAll(req, res) {
         const rent = await conn('aluguel')
             .select('*')
@@ -51,6 +52,7 @@ module.exports = {
             .select('vezes_alugada', 'id_dono')
             .first()
             .then(async rows => {
+                console.log(rows);
                 if(rows.id_dono == dono_id) {
                     await conn('ferramenta')
                         .where({
@@ -59,23 +61,32 @@ module.exports = {
                         })
                         .update({
                             vezes_alugada: rows.vezes_alugada + 1
+                        })
+                        .catch(err => {
+                            return res.json(err)
                         });
                         
-                    await conn('aluguel').insert({
-                        id_aluguel: id_aluguel,
-                        dono_id: dono_id,
-                        ferramenta_id: ferramenta_id,
-                        nome_beneficiado: nome_beneficiado,
-                    });
+                    await conn('aluguel')
+                        .insert({
+                            id_aluguel: id_aluguel,
+                            dono_id: dono_id,
+                            ferramenta_id: ferramenta_id,
+                            nome_beneficiado: nome_beneficiado,
+                        })
+                        .catch(err => {
+                            return res.json(err)
+                        });
+
                     return res.status(200).send();
                 } else if (dono_id == undefined) {
                     return res.status(404).send();
                 } else {
                     return res.status(401).send();
                 }
+            })
+            .catch(err => {
+                return res.json(err)
             });
-    
-        
 
         return res.status(204).send();
     },
@@ -93,11 +104,11 @@ module.exports = {
                 if(user != undefined) {
                     if(user.dono_id == id_dono) {
                         await conn('aluguel')
-                        .update({ nome_beneficiado: nome })
-                        .where('id_aluguel', id)
-                        .then(() => {
-                            return res.status(202).send();
-                        })
+                            .update({ nome_beneficiado: nome })
+                            .where('id_aluguel', id)
+                            .then(() => {
+                                return res.status(202).send();
+                            })
                     }
                     return res.status(401).send();
                 } else {

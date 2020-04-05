@@ -10,6 +10,8 @@ routes.get('/usuarios', UserController.indexAll);
 routes.get('/usuarios/id/:id', UserController.indexOne);
 routes.get('/usuarios/tudo/:id', UserController.indexEverythingFromUser);
 routes.post('/usuarios', UserController.create);
+routes.patch('/usuarios/nome/:id', UserController.updateName);
+routes.patch('/usuarios/senha/:id', UserController.updatePassword);
 routes.delete('/usuarios/id/:id', UserController.delete);
 routes.post('/usuarios/authenticate', UserController.authenticate);
 
@@ -19,6 +21,7 @@ routes.get('/ferramentas/id/:id', ToolsController.indexOne);
 routes.get('/ferramentas/id-usuario/:id', ToolsController.indexAllFromUser);
 routes.get('/ferramentas/vezes_alugada/:id', ToolsController.indexTimesRented);
 routes.post('/ferramentas', ToolsController.create);
+routes.patch('/ferramentas/id/:id', ToolsController.updateName);
 routes.delete('/ferramentas/id/:id', ToolsController.delete);
 
 /* Rent Routes */

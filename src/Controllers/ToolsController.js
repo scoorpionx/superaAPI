@@ -2,6 +2,7 @@ const conn = require('../database/connection');
 const crypto = require('crypto');
 
 module.exports = {
+
     async indexAll(req, res) {
         const tool = await conn('ferramenta')
             .select('*')
@@ -56,6 +57,38 @@ module.exports = {
         });
 
         return res.status(204).send();
+    },
+
+    async updateName(req, res) {
+        const { id } = req.params;
+        const id_dono = req.headers.authorization;
+        const { nome } = req.body;
+
+        await conn('ferramenta')
+            .where('id_ferramenta', id)
+            .select('nome', 'id_dono')
+            .first()
+            .then(async tool => {
+                if(tool != undefined){
+                    if(tool.id_dono == id_dono) {
+                        await conn('ferramenta')
+                            .update('nome', nome)
+                            .where('id_ferramenta', id)
+                            .then(() => {
+                                return res.status(202).send();
+                            })
+                            .catch(err => {
+                                return res.json(err)
+                            });
+                    }
+                    return res.status(401).send();
+                } else {
+                    return res.status(404).send();
+                }
+            })
+            .catch(err => {
+                return res.json(err)
+            });
     },
 
     async delete(req, res) {
