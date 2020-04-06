@@ -3,40 +3,15 @@ const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 
 module.exports = {
-    
-    async indexAll(req, res) {
-        const usuario = await conn('usuario')
-            .select('id_usuario', 'nome')
-            .from('usuario')
-            .catch(err => {
-                return res.json(err)
-            });
-        
-        return res.json(usuario);
-    },
-    
-    async indexOne(req, res) {
-        const { id } = req.params;
-
-        const usuario = await conn('usuario')
-            .where('id_usuario', id)
-            .select('id_usuario', 'nome')
-            .first()
-            .catch(err => {
-                return res.json(err)
-            });
-        
-        return res.json(usuario);
-    },
 
     async indexEverythingFromUser(req, res) {
-        const { id } = req.params;
+        const id = req.userId;
 
         const usuario = await conn('usuario')
             .where('id_usuario', id)
-            .select('nome')
+            .select('id_usuario', 'nome')
             .first()
-            .then(async () => {
+            .then(async (user) => {
                 const rent = await conn('aluguel')
                     .where('dono_id', id)
                     .select('*');
@@ -45,7 +20,7 @@ module.exports = {
                     .where('id_dono', id)
                     .select('*');
 
-                return {rent, tool}
+                return res.json({ user, rent, tool })
             })
             .catch(err => {
                 return res.json(err)
@@ -73,7 +48,7 @@ module.exports = {
     },
 
     async updateName(req, res) {
-        const { id } = req.params;
+        const id = req.userId;
         const { nome, senha } = req.body;
 
         await conn('usuario')
@@ -105,7 +80,7 @@ module.exports = {
     },
 
     async updatePassword(req, res) {
-        const { id } = req.params;
+        const id = req.userId;
         const { senha_antiga, senha_nova } = req.body;
 
         await conn('usuario')
@@ -141,7 +116,7 @@ module.exports = {
     },
 
     async delete(req, res) {
-        const { id } = req.params;
+        const id = req.userId;
         const { senha } = req.body;
 
         await conn('usuario')
@@ -169,30 +144,6 @@ module.exports = {
             })
             .catch(err => {
                 return res.json(err)
-            });
-    },
-
-    async authenticate(req, res) {
-        const { id_usuario, senha } = req.body;
-
-        await conn('usuario')
-            .where('id_usuario', id_usuario)
-            .select('senha')
-            .first()
-            .then(user => {
-                if(user != undefined) {
-                    const correct = bcrypt.compareSync(senha, user.senha);
-                    if(correct) {
-                        return res.status(202).send();
-                    } else {
-                        return res.status(403).send();
-                    }
-                } else {
-                    return res.status(404).send();
-                }
-            })
-            .catch(err => {
-                return res.json(err);
             });
     },
 }

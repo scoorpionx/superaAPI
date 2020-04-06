@@ -4,26 +4,7 @@ const crypto = require('crypto');
 module.exports = {
     
     async indexAll(req, res) {
-        const rent = await conn('aluguel')
-            .select('*')
-            .from('aluguel');
-        
-        return res.json(rent);
-    },
-    
-    async indexOne(req, res) {
-        const { id } = req.params;
-
-        const rent = await conn('aluguel')
-            .where('id_aluguel', id)
-            .select('*')
-            .first();
-        
-        return res.json(rent);
-    },
-
-    async indexAllFromUser(req, res) {
-        const { id } = req.params;
+        const id = req.userId;
 
         const rent = await conn('aluguel')
             .where('dono_id', id)
@@ -44,7 +25,7 @@ module.exports = {
     
     async create(req, res) { 
         const { nome_beneficiado, ferramenta_id } = req.body;
-        const dono_id = req.headers.authorization;
+        const dono_id = req.userId;
         const id_aluguel = crypto.randomBytes(4).toString('HEX');
 
         await conn('ferramenta')
@@ -77,7 +58,12 @@ module.exports = {
                             return res.json(err)
                         });
 
-                    return res.status(200).send();
+                    return res.status(200).json({
+                        id_aluguel,
+                        dono_id,
+                        ferramenta_id,
+                        nome_beneficiado
+                    });
                 } else if (dono_id == undefined) {
                     return res.status(404).send();
                 } else {
@@ -93,7 +79,7 @@ module.exports = {
 
     async updateName(req, res) {
         const { id } = req.params;
-        const id_dono = req.headers.authorization;
+        const id_dono = req.userId;
         const { nome } = req.body;
 
         await conn('aluguel')
@@ -120,7 +106,7 @@ module.exports = {
 
     async delete(req, res) {
         const { id } = req.params;
-        const id_dono = req.headers.authorization;
+        const id_dono = req.userId;
 
         await conn('aluguel')
             .where('id_aluguel', id)

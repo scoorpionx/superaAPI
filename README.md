@@ -2,13 +2,18 @@
 > API required by the Supera Tecnologia team for the second stage of the internship selection process.
 
 
-REST API for requests, routes and business rules.
+REST API for requests, routes and business rules, using Node.js, MySQL, Express, BCrypt, JWT and Knex. 
 
 ![](Example.png)
 
 ## Installation
 
-Clone the repository;
+Clone the repository:
+
+```sh
+git clone https://github.com/scoorpionx/superaAPI.git
+```
+
 Run the DataBase Script to create MySQL Database:
 
 ![](SQLScript.png)

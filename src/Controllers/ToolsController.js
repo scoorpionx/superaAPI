@@ -2,28 +2,9 @@ const conn = require('../database/connection');
 const crypto = require('crypto');
 
 module.exports = {
-
-    async indexAll(req, res) {
-        const tool = await conn('ferramenta')
-            .select('*')
-            .from('ferramenta');
-        
-        return res.json(tool);
-    },
     
-    async indexOne(req, res) {
-        const { id } = req.params;
-
-        const tool = await conn('ferramenta')
-            .where('id_ferramenta', id)
-            .select('*')
-            .first();
-        
-        return res.json(tool);
-    },
-
     async indexAllFromUser(req, res) {
-        const { id } = req.params;
+        const id = req.userId;
 
         const tool = await conn('ferramenta')
             .where('id_dono', id)
@@ -45,7 +26,7 @@ module.exports = {
     
     async create(req, res) { 
         const { nome, valor_dia } = req.body;
-        const id_dono = req.headers.authorization;
+        const id_dono = req.userId;
         const id = crypto.randomBytes(4).toString('HEX');
         
         await conn('ferramenta').insert({
@@ -54,14 +35,17 @@ module.exports = {
             valor_dia: valor_dia,
             vezes_alugada: 0,
             id_dono: id_dono
+        })
+        .then((insert) => {
+            return res.status(204).send();
+        }).catch(err => {
+            return res.json(err)
         });
-
-        return res.status(204).send();
     },
 
     async updateName(req, res) {
         const { id } = req.params;
-        const id_dono = req.headers.authorization;
+        const id_dono = req.userId;
         const { nome } = req.body;
 
         await conn('ferramenta')
